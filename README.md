@@ -68,6 +68,21 @@ To enable debug mode for development (not recommended for production):
 FLASK_DEBUG=1 python app.py
 ```
 
+### Configuration Options
+
+The application can be configured using environment variables:
+
+- `FLASK_DEBUG=1` - Enable debug mode (development only)
+- `FLASK_HOST=0.0.0.0` - Bind to all interfaces (use `127.0.0.1` for local only)
+- `FLASK_PORT=8080` - Change the port (default: 5000)
+- `SECRET_KEY=your-secret-key` - Set secret key for production
+- `DATABASE_URL=sqlite:///path/to/db.db` - Custom database location
+
+Example for production:
+```bash
+SECRET_KEY=your-secure-random-key FLASK_HOST=127.0.0.1 python app.py
+```
+
 ## Usage
 
 ### Creating a Check-in
@@ -178,6 +193,24 @@ MoodPulse specifically addresses the "Human Interaction" theme by:
 - No data is sent to external servers
 - Support snapshots are generated on-demand and only shared with explicit user action
 - Individual notes are never included in snapshots
+
+## Security
+
+MoodPulse implements several security best practices:
+
+- **Input Validation**: All user inputs (mood, intensity, context tags) are validated against allowed values
+- **Query Protection**: API parameters are validated to prevent DoS attacks (max 365 days)
+- **Secure Secrets**: Secret keys are auto-generated using cryptographically secure methods
+- **Debug Mode**: Disabled by default, only enabled via explicit environment variable
+- **Host Binding**: Defaults to localhost (127.0.0.1) for security
+- **XSS Protection**: Jinja2 auto-escaping enabled for all templates
+- **CodeQL Verified**: All code passes GitHub's security analysis
+
+For production deployment:
+1. Always set a secure `SECRET_KEY` environment variable
+2. Use HTTPS/TLS for network traffic
+3. Keep `FLASK_DEBUG` disabled
+4. Consider adding authentication for multi-user scenarios
 
 ## Future Enhancements
 
