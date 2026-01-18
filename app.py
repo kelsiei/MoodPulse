@@ -19,6 +19,17 @@ CONTEXT_TAGS = [
     'conflict', 'positive_interaction', 'online_interaction'
 ]
 
+# Interaction tags for analysis (tags that indicate being with others)
+INTERACTION_TAGS = [
+    'with_friends', 'with_family', 'social_event', 'one_on_one',
+    'group_setting', 'positive_interaction', 'helping_someone', 'received_support'
+]
+
+# Configuration constants
+DEFAULT_DAYS = 7
+MAX_SNAPSHOT_CONTEXTS = 5
+MAX_RECENT_ENTRIES = 10
+
 
 def analyze_mood_patterns(days=7):
     """Analyze mood patterns over specified days."""
@@ -54,9 +65,7 @@ def analyze_mood_patterns(days=7):
         }
     
     # Identify patterns around human interactions
-    interaction_tags = ['with_friends', 'with_family', 'social_event', 'one_on_one', 
-                       'group_setting', 'positive_interaction', 'helping_someone', 'received_support']
-    interaction_entries = [e for e in entries if any(tag in e.tags_list for tag in interaction_tags)]
+    interaction_entries = [e for e in entries if any(tag in e.tags_list for tag in INTERACTION_TAGS)]
     alone_entries = [e for e in entries if 'alone' in e.tags_list]
     
     interaction_avg = sum(e.intensity for e in interaction_entries) / len(interaction_entries) if interaction_entries else 0
@@ -72,7 +81,8 @@ def analyze_mood_patterns(days=7):
             'alone_avg': round(alone_avg, 1),
             'difference': round(interaction_avg - alone_avg, 1)
         },
-        'entries': [entry.to_dict() for entry in entries]
+        'entries': [entry.to_dict() for entry in entries],
+        'recent_entries': [entry.to_dict() for entry in entries[-MAX_RECENT_ENTRIES:]]
     }
 
 
@@ -99,7 +109,7 @@ Key Context Patterns:
     
     # Sort contexts by frequency
     sorted_contexts = sorted(analysis['context_insights'].items(), 
-                           key=lambda x: x[1]['count'], reverse=True)[:5]
+                           key=lambda x: x[1]['count'], reverse=True)[:MAX_SNAPSHOT_CONTEXTS]
     
     for context, data in sorted_contexts:
         snapshot += f"- {context}: {data['count']} times, avg intensity {data['avg_intensity']}/10\n"

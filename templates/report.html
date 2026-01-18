@@ -206,7 +206,7 @@
 <div class="report-section">
     <h2>📝 Recent Check-ins</h2>
     <div class="entry-list">
-        {% for entry in analysis.entries[-10:]|reverse %}
+        {% for entry in analysis.recent_entries|reverse %}
         <div class="entry-item">
             <div style="display: flex; justify-content: space-between;">
                 <strong>{{ entry.mood|capitalize }}</strong>
