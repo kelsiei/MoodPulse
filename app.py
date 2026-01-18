@@ -30,6 +30,7 @@ DEFAULT_DAYS = 7
 DEFAULT_INTENSITY = 5
 MAX_SNAPSHOT_CONTEXTS = 5
 MAX_RECENT_ENTRIES = 10
+MAX_DAYS_QUERY = 365  # Maximum days allowed for queries
 
 
 def analyze_mood_patterns(days=DEFAULT_DAYS):
@@ -133,6 +134,10 @@ def checkin():
     
     mood = data.get('mood')
     
+    # Validate mood against allowed options
+    if not mood or mood not in MOOD_OPTIONS:
+        return jsonify({'error': 'Invalid mood selected'}), 400
+    
     # Validate and parse intensity with fallback to default
     try:
         intensity = int(data.get('intensity', DEFAULT_INTENSITY))
@@ -141,11 +146,12 @@ def checkin():
     except (ValueError, TypeError):
         intensity = DEFAULT_INTENSITY
     
-    context_tags = ','.join(data.getlist('context_tags'))
-    notes = data.get('notes', '')
+    # Validate context tags against allowed options
+    submitted_tags = data.getlist('context_tags')
+    valid_tags = [tag for tag in submitted_tags if tag in CONTEXT_TAGS]
+    context_tags = ','.join(valid_tags)
     
-    if not mood:
-        return jsonify({'error': 'Mood is required'}), 400
+    notes = data.get('notes', '')
     
     entry = MoodEntry(
         mood=mood,
@@ -164,6 +170,8 @@ def checkin():
 def report():
     """View mood analysis report."""
     days = request.args.get('days', DEFAULT_DAYS, type=int)
+    # Validate days parameter to prevent DoS
+    days = max(1, min(days, MAX_DAYS_QUERY))
     analysis = analyze_mood_patterns(days=days)
     
     if not analysis:
@@ -183,6 +191,8 @@ def snapshot():
 def api_entries():
     """API endpoint to get mood entries as JSON."""
     days = request.args.get('days', 30, type=int)
+    # Validate days parameter to prevent DoS
+    days = max(1, min(days, MAX_DAYS_QUERY))
     start_date = datetime.utcnow() - timedelta(days=days)
     entries = MoodEntry.query.filter(MoodEntry.timestamp >= start_date).order_by(MoodEntry.timestamp.desc()).all()
     
@@ -193,6 +203,8 @@ def api_entries():
 def api_analysis():
     """API endpoint to get mood analysis as JSON."""
     days = request.args.get('days', DEFAULT_DAYS, type=int)
+    # Validate days parameter to prevent DoS
+    days = max(1, min(days, MAX_DAYS_QUERY))
     analysis = analyze_mood_patterns(days=days)
     
     if not analysis:
@@ -213,4 +225,7 @@ if __name__ == '__main__':
     # Enable via environment variable for development: FLASK_DEBUG=1
     import os
     debug_mode = os.environ.get('FLASK_DEBUG', '0') == '1'
-    app.run(debug=debug_mode, host='0.0.0.0', port=5000)
+    # Use 127.0.0.1 for local development, or set FLASK_HOST for specific needs
+    host = os.environ.get('FLASK_HOST', '127.0.0.1')
+    port = int(os.environ.get('FLASK_PORT', 5000))
+    app.run(debug=debug_mode, host=host, port=port)

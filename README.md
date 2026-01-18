@@ -61,6 +61,13 @@ MoodPulse helps you understand how your moods shift around human interactions th
 4. **Access the app:**
    Open your browser and navigate to `http://localhost:5000`
 
+### Development Mode
+
+To enable debug mode for development (not recommended for production):
+```bash
+FLASK_DEBUG=1 python app.py
+```
+
 ## Usage
 
 ### Creating a Check-in
