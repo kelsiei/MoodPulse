@@ -27,11 +27,12 @@ INTERACTION_TAGS = [
 
 # Configuration constants
 DEFAULT_DAYS = 7
+DEFAULT_INTENSITY = 5
 MAX_SNAPSHOT_CONTEXTS = 5
 MAX_RECENT_ENTRIES = 10
 
 
-def analyze_mood_patterns(days=7):
+def analyze_mood_patterns(days=DEFAULT_DAYS):
     """Analyze mood patterns over specified days."""
     start_date = datetime.utcnow() - timedelta(days=days)
     entries = MoodEntry.query.filter(MoodEntry.timestamp >= start_date).order_by(MoodEntry.timestamp).all()
@@ -88,7 +89,7 @@ def analyze_mood_patterns(days=7):
 
 def generate_support_snapshot():
     """Generate a shareable support snapshot of recent mood patterns."""
-    analysis = analyze_mood_patterns(days=7)
+    analysis = analyze_mood_patterns(days=DEFAULT_DAYS)
     
     if not analysis:
         return "No mood data available yet."
@@ -131,7 +132,15 @@ def checkin():
     data = request.form
     
     mood = data.get('mood')
-    intensity = int(data.get('intensity', 5))
+    
+    # Validate and parse intensity with fallback to default
+    try:
+        intensity = int(data.get('intensity', DEFAULT_INTENSITY))
+        # Ensure intensity is within valid range
+        intensity = max(1, min(10, intensity))
+    except (ValueError, TypeError):
+        intensity = DEFAULT_INTENSITY
+    
     context_tags = ','.join(data.getlist('context_tags'))
     notes = data.get('notes', '')
     
@@ -154,7 +163,7 @@ def checkin():
 @app.route('/report')
 def report():
     """View mood analysis report."""
-    days = request.args.get('days', 7, type=int)
+    days = request.args.get('days', DEFAULT_DAYS, type=int)
     analysis = analyze_mood_patterns(days=days)
     
     if not analysis:
@@ -183,7 +192,7 @@ def api_entries():
 @app.route('/api/analysis')
 def api_analysis():
     """API endpoint to get mood analysis as JSON."""
-    days = request.args.get('days', 7, type=int)
+    days = request.args.get('days', DEFAULT_DAYS, type=int)
     analysis = analyze_mood_patterns(days=days)
     
     if not analysis:

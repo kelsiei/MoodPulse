@@ -68,10 +68,32 @@
         margin-top: 15px;
         font-style: italic;
     }
+    
+    .success-toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #6bcf7f;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        opacity: 0;
+        transition: opacity 0.3s;
+        z-index: 1000;
+    }
+    
+    .success-toast.show {
+        opacity: 1;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
+<div id="success-toast" class="success-toast">
+    Snapshot copied to clipboard! ✓
+</div>
+
 <div class="snapshot-container">
     <div class="snapshot-intro">
         <h2>📸 Support Snapshot</h2>
@@ -97,12 +119,27 @@
 </div>
 
 <script>
+    function showToast(message, isError = false) {
+        const toast = document.getElementById('success-toast');
+        toast.textContent = message;
+        if (isError) {
+            toast.style.background = '#ff6b6b';
+        } else {
+            toast.style.background = '#6bcf7f';
+        }
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+    
     function copySnapshot() {
         const snapshotText = document.getElementById('snapshot-text').textContent;
         navigator.clipboard.writeText(snapshotText).then(function() {
-            alert('Snapshot copied to clipboard! You can now share it with trusted people.');
+            showToast('Snapshot copied to clipboard! ✓');
         }, function(err) {
-            alert('Failed to copy: ' + err);
+            showToast('Failed to copy. Please try selecting and copying manually.', true);
+            console.error('Copy failed:', err);
         });
     }
 </script>
