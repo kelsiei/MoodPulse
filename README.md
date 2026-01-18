@@ -108,6 +108,8 @@ SECRET_KEY=your-secure-random-key FLASK_HOST=127.0.0.1 python app.py
 3. Click "Copy to Clipboard"
 4. Share with trusted people who you want to understand your patterns
 
+**Note**: The clipboard feature requires HTTPS or localhost. If the copy button doesn't work, manually select and copy the text from the snapshot box.
+
 ## API Endpoints
 
 ### GET `/api/entries?days=30`
