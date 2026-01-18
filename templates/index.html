@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}MoodPulse - Check In{% endblock %}
+
+{% block extra_css %}
+<style>
+    .check-in-form {
+        background: #f9f9f9;
+        padding: 30px;
+        border-radius: 10px;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    label {
+        display: block;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+        font-size: 1.1em;
+    }
+    
+    .mood-options, .context-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+    }
+    
+    .mood-btn, .context-tag {
+        padding: 10px 20px;
+        border: 2px solid #ddd;
+        background: white;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .mood-btn:hover, .context-tag:hover {
+        border-color: #667eea;
+        transform: scale(1.05);
+    }
+    
+    input[type="radio"]:checked + .mood-btn {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
+    
+    input[type="checkbox"]:checked + .context-tag {
+        background: #764ba2;
+        color: white;
+        border-color: #764ba2;
+    }
+    
+    input[type="radio"], input[type="checkbox"] {
+        display: none;
+    }
+    
+    .intensity-slider {
+        width: 100%;
+        height: 8px;
+        border-radius: 5px;
+        background: linear-gradient(to right, #ff6b6b, #ffd93d, #6bcf7f);
+        outline: none;
+        -webkit-appearance: none;
+    }
+    
+    .intensity-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        background: #667eea;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    
+    .intensity-value {
+        text-align: center;
+        font-size: 1.5em;
+        color: #667eea;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+    
+    textarea {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 1em;
+        resize: vertical;
+        min-height: 80px;
+    }
+    
+    textarea:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+    
+    .submit-btn {
+        width: 100%;
+        font-size: 1.2em;
+        padding: 15px;
+        margin-top: 10px;
+    }
+    
+    .success-message {
+        background: #6bcf7f;
+        color: white;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .helper-text {
+        font-size: 0.9em;
+        color: #666;
+        margin-top: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="check-in-form">
+    <h2 style="margin-bottom: 20px; color: #667eea;">How are you feeling?</h2>
+    
+    <form method="POST" action="/checkin">
+        <div class="form-group">
+            <label>Mood *</label>
+            <div class="mood-options">
+                {% for mood in moods %}
+                <div>
+                    <input type="radio" name="mood" id="mood-{{ mood }}" value="{{ mood }}" required>
+                    <label for="mood-{{ mood }}" class="mood-btn">{{ mood|capitalize }}</label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="intensity">Intensity (1-10)</label>
+            <input type="range" name="intensity" id="intensity" class="intensity-slider" 
+                   min="1" max="10" value="5" oninput="updateIntensity(this.value)">
+            <div class="intensity-value" id="intensity-value">5</div>
+        </div>
+        
+        <div class="form-group">
+            <label>What's the context?</label>
+            <p class="helper-text">Select all that apply - especially around human interactions</p>
+            <div class="context-options">
+                {% for context in contexts %}
+                <div>
+                    <input type="checkbox" name="context_tags" id="context-{{ context }}" value="{{ context }}">
+                    <label for="context-{{ context }}" class="context-tag">{{ context.replace('_', ' ')|title }}</label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="notes">Notes (optional)</label>
+            <textarea name="notes" id="notes" placeholder="Anything else you'd like to remember about this moment..."></textarea>
+        </div>
+        
+        <input type="submit" value="Save Check-in" class="submit-btn">
+    </form>
+</div>
+
+<script>
+    function updateIntensity(value) {
+        document.getElementById('intensity-value').textContent = value;
+    }
+</script>
+{% endblock %}

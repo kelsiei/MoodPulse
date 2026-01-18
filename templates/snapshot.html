@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}MoodPulse - Support Snapshot{% endblock %}
+
+{% block extra_css %}
+<style>
+    .snapshot-container {
+        background: #f9f9f9;
+        padding: 30px;
+        border-radius: 10px;
+    }
+    
+    .snapshot-intro {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 25px;
+    }
+    
+    .snapshot-intro h2 {
+        margin-bottom: 10px;
+    }
+    
+    .snapshot-text {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        border: 2px solid #667eea;
+        white-space: pre-wrap;
+        font-family: 'Courier New', monospace;
+        line-height: 1.8;
+        margin-bottom: 20px;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 20px;
+    }
+    
+    .copy-btn {
+        background: #6bcf7f;
+    }
+    
+    .copy-btn:hover {
+        background: #5bb96d;
+    }
+    
+    .privacy-notice {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        color: #856404;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .privacy-notice strong {
+        display: block;
+        margin-bottom: 8px;
+    }
+    
+    .consent-message {
+        text-align: center;
+        color: #666;
+        margin-top: 15px;
+        font-style: italic;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="snapshot-container">
+    <div class="snapshot-intro">
+        <h2>📸 Support Snapshot</h2>
+        <p>Share your mood patterns with trusted people to help them understand and support you better.</p>
+    </div>
+    
+    <div class="privacy-notice">
+        <strong>🔒 Your Privacy Matters</strong>
+        This snapshot is created with your consent. Share it only with people you trust. 
+        It summarizes your mood patterns without including specific notes or personal details.
+    </div>
+    
+    <div class="snapshot-text" id="snapshot-text">{{ snapshot }}</div>
+    
+    <div class="action-buttons">
+        <button onclick="copySnapshot()" class="copy-btn">📋 Copy to Clipboard</button>
+        <button onclick="window.print()">🖨️ Print</button>
+    </div>
+    
+    <div class="consent-message">
+        By sharing this snapshot, you're helping others understand your emotional landscape.
+    </div>
+</div>
+
+<script>
+    function copySnapshot() {
+        const snapshotText = document.getElementById('snapshot-text').textContent;
+        navigator.clipboard.writeText(snapshotText).then(function() {
+            alert('Snapshot copied to clipboard! You can now share it with trusted people.');
+        }, function(err) {
+            alert('Failed to copy: ' + err);
+        });
+    }
+</script>
+{% endblock %}
